@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Innovative Web Page</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: linear-gradient(to right, #4facfe, #00f2fe);
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        h1 {
+            margin: 20px 0;
+            font-size: 2.5em;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            width: 80%;
+            max-width: 800px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .container:hover {
+            transform: translateY(-10px);
+        }
+        h2 {
+            font-size: 1.8em;
+            margin-bottom: 10px;
+        }
+        button {
+            background: #ff5f6d;
+            background: linear-gradient(to right, #ff5f6d, #ffc371);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 1em;
+            margin: 10px 0;
+            cursor: pointer;
+            border-radius: 50px;
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+        button:hover {
+            background: #ffc371;
+            background: linear-gradient(to right, #ffc371, #ff5f6d);
+            transform: translateY(-5px);
+        }
+        input[type="text"] {
+            padding: 10px;
+            width: 80%;
+            border-radius: 50px;
+            border: 2px solid #ff5f6d;
+            margin: 10px 0;
+            font-size: 1em;
+        }
+        canvas, video {
+            max-width: 100%;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+        .icon {
+            font-size: 1.2em;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Innovative Web Page</h1>
+    
+    <!-- Section for Speech to Text -->
+    <div class="container">
+        <h2><i class="fas fa-microphone icon"></i> Speech to Text</h2>
+        <button id="start-record-btn">Start Recording</button>
+        <p id="speech-output"></p>
+    </div>
+
+    <!-- Section for Accessing Camera and Clicking Photo -->
+    <div class="container">
+        <h2><i class="fas fa-camera icon"></i> Camera Access and Click Photo</h2>
+        <video id="videoElement" autoplay></video>
+        <button id="snap">Snap Photo</button>
+        <canvas id="photo"></canvas>
+    </div>
+
+    <!-- Section for Live Streaming -->
+    <div class="container">
+        <h2><i class="fas fa-video icon"></i> Live Stream Camera</h2>
+        <video id="liveStream" autoplay></video>
+    </div>
+
+    <!-- Section for Recording Video and Posting to Instagram -->
+    <div class="container">
+        <h2><i class="fas fa-video icon"></i> Record Video and Post to Instagram</h2>
+        <button id="record">Record Video</button>
+        <video id="recordedVideo" controls></video>
+        <input type="text" id="videoTitle" placeholder="Enter video title" style="display:none;">
+        <input type="text" id="accessToken" placeholder="Enter Instagram Access Token" style="display:none;">
+        <button id="postInstagram" style="display:none;">Post to Instagram</button>
+    </div>
+
+    <!-- Section for Google Search and Creating a Search Engine -->
+    <div class="container">
+        <h2><i class="fas fa-search icon"></i> Google Search</h2>
+        <input type="text" id="searchInput" placeholder="Enter name to search">
+        <button id="searchBtn">Search</button>
+    </div>
+
+    <!-- Section for ChatGPT Integration -->
+    <div class="container">
+        <h2><i class="fas fa-comments icon"></i> ChatGPT Integration</h2>
+        <input type="text" id="chatInput" placeholder="Ask something">
+        <button id="chatBtn">Send</button>
+        <p id="chatOutput"></p>
+    </div>
+
+    <!-- Section for Docker Metrics -->
+    <div class="container">
+        <h2><i class="fas fa-chart-line icon"></i> Docker Metrics</h2>
+        <canvas id="dockerMetrics"></canvas>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Speech to Text
+        const startRecordBtn = document.getElementById('start-record-btn');
+        const speechOutput = document.getElementById('speech-output');
+        let recognition;
+
+        if (window.SpeechRecognition || window.webkitSpeechRecognition) {
+            recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.onresult = (event) => {
+                speechOutput.innerText = event.results[0][0].transcript;
+            };
+
+            startRecordBtn.addEventListener('click', () => {
+                if (recognition.recognizing) {
+                    recognition.stop();
+                    startRecordBtn.innerText = 'Start Recording';
+                } else {
+                    recognition.start();
+                    startRecordBtn.innerText = 'Stop Recording';
+                }
+            });
+
+            recognition.onstart = () => {
+                recognition.recognizing = true;
+            };
+
+            recognition.onend = () => {
+                recognition.recognizing = false;
+                startRecordBtn.innerText = 'Start Recording';
+            };
+        } else {
+            startRecordBtn.disabled = true;
+            speechOutput.innerText = 'Speech Recognition not supported';
+        }
+
+        // Access Camera and Click Photo
+        const video = document.getElementById('videoElement');
+        const photoCanvas = document.getElementById('photo');
+        const snapBtn = document.getElementById('snap');
+
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then((stream) => {
+                video.srcObject = stream;
+            });
+
+        snapBtn.addEventListener('click', () => {
+            const context = photoCanvas.getContext('2d');
+            context.drawImage(video, 0, 0, photoCanvas.width, photoCanvas.height);
+        });
+
+        // Live Stream Camera
+        const liveStream = document.getElementById('liveStream');
+
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then((stream) => {
+                liveStream.srcObject = stream;
+            });
+
+        // Record Video and Post to Instagram
+        const recordBtn = document.getElementById('record');
+        const recordedVideo = document.getElementById('recordedVideo');
+        const postInstagramBtn = document.getElementById('postInstagram');
+        const videoTitleInput = document.getElementById('videoTitle');
+        const accessTokenInput = document.getElementById('accessToken');
+        let mediaRecorder;
+        let chunks = [];
+
+        recordBtn.addEventListener('click', () => {
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                mediaRecorder.stop();
+                recordBtn.innerText = 'Record Video';
+            } else {
+                navigator.mediaDevices.getUserMedia({ video: true })
+                    .then((stream) => {
+                        mediaRecorder = new MediaRecorder(stream);
+                        mediaRecorder.ondataavailable = (e) => {
+                            chunks.push(e.data);
+                        };
+                        mediaRecorder.onstop = () => {
+                            const blob = new Blob(chunks, { type: 'video/mp4' });
+                            chunks = [];
+                            const videoURL = URL.createObjectURL(blob);
+                            recordedVideo.src = videoURL;
+                            videoTitleInput.style.display = 'inline-block';
+                            accessTokenInput.style.display = 'inline-block';
+                            postInstagramBtn.style.display = 'inline-block';
+                        };
+                        mediaRecorder.start();
+                        recordBtn.innerText = 'Stop Recording';
+                    });
+            }
+        });
+
+        postInstagramBtn.addEventListener('click', () => {
+            const videoBlob = new Blob(chunks, { type: 'video/mp4' });
+            const videoTitle = videoTitleInput.value;
+            const accessToken = accessTokenInput.value;
+
+            // Create FormData to send video to Instagram API
+            const formData = new FormData();
+            formData.append('video', videoBlob);
+            formData.append('title', videoTitle);
+            formData.append('access_token', accessToken);
+
+            // Placeholder for posting the video to Instagram
+            // Your code to post the video to Instagram API goes here
+
+            alert('Video posted to Instagram!');
+        });
+
+        // Google Search and Create Search Engine
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+
+        searchBtn.addEventListener('click', () => {
+            const query = searchInput.value;
+            const googleSearchURL = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+            window.location.href = googleSearchURL;
+        });
+
+        // ChatGPT Integration Simulation
+        const chatInput = document.getElementById('chatInput');
+        const chatBtn = document.getElementById('chatBtn');
+        const chatOutput = document.getElementById('chatOutput');
+
+        const responses = {
+            "hello": "Hi there! How can I help you today?",
+            "how are you": "I'm a bot, so I don't have feelings, but thanks for asking!",
+            "what is your name": "I'm ChatGPT, your virtual assistant.",
+            "tell me a joke": "Why did the scarecrow win an award? Because he was outstanding in his field!"
+        };
+
+        chatBtn.addEventListener('click', () => {
+            const query = chatInput.value.toLowerCase();
+            chatOutput.innerText = responses[query] || "Sorry, I don't understand that question.";
+        });
+
+        // Docker Metrics
+        const dockerMetricsCtx = document.getElementById('dockerMetrics').getContext('2d');
+
+        fetch('YOUR_DOCKER_METRICS_ENDPOINT')
+            .then(response => response.json())
+            .then(data => {
+                const chart = new Chart(dockerMetricsCtx, {
+                    type: 'line',
+                    data: {
+                        labels: data.time,
+                        datasets: [
+                            {
+                                label: 'Memory Used',
+                                data: data.memory,
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Storage Used',
+                                data: data.storage,
+                                borderColor: 'rgba(153, 102, 255, 1)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'CPU Usage',
+                                data: data.cpu,
+                                borderColor: 'rgba(255, 99, 132, 1)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Status',
+                                data: data.status,
+                                borderColor: 'rgba(255, 206, 86, 1)',
+                                borderWidth: 1
+                            }
+                        ]
+                    }
+                });
+            });
+    </script>
+</body>
+</html>
